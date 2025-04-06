@@ -1,0 +1,24 @@
+This software is meant to run on a 32 or 64 bit Windows system with Python3, cv2, numpy and the depthai Python depthai installed.
+
+Extract the contents of the OAD-DApp.zip file to a destination of your choice.
+
+After extraction, open the system command prompt and navigate to the extraction folder.
+
+Important: first connect the OAK-D camera usb cable to the laptop/computer!
+Execute the main script by entering: 'python3 oak-d_app.py'
+
+When started, the application will connect to the camera. This can take up to 15 seconds.
+When the connection is succesful, a stream will be started and show images of the color camera in the main window.
+
+The following keys (case sensitive) can be pressed to open vision operator windows, with sliders to manipulate vision operator parameters:
+
+'c':	open the 'CONTOURS' operator window with sliders for (blurring) kernel size and minimum object area. Use this option only when you already got rid of non-object pixels in the image. The contours operators draws a bounding box around the object(s) that is found.
+'h':	open the 'HSV' (Hue Saturation Value) operator window with sliders for Hue, Saturation and Value minimum and maximum settings
+'r':	enable depth retrieval and show coordinates and distance to the object in the region of interest in the image window. Use this option only when the CONTOURS option is executed succesfully.
+'s':	disable depth retrieval and hide coordinates and distance to the object in the region of interest.
+'t':	opens the 'threshold' window with on/off sliders to enable or disable multiple types of thresholding operations
+
+'A':
+'D':	destroys main window (including sliders) and re-creates main window
+'S':	saves the image in the main window to file
+'Q':	exit the program
