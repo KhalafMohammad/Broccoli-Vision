@@ -78,5 +78,5 @@ def getOrientation(pts, img):
         1,
         cv2.LINE_AA,
     )
-    return angle
-
+    # print(label)
+    return angle, cntr

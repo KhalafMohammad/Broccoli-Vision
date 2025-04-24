@@ -177,15 +177,13 @@ from math import atan2, cos, sin, sqrt, pi
 import numpy as np
  
 # Load the image
-img = cv.imread("frame_1.png")
+img = cv.imread("frame_2.png")
  
 # Was the image there?
 if img is None:
   print("Error: File not found")
   exit(0)
- 
-cv.imshow('Input Image', img)
- 
+  
 # Convert image to grayscale
 gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
  
@@ -208,7 +206,7 @@ for i, c in enumerate(contours):
   # (center(x, y), (width, height), angle of rotation) = cv2.minAreaRect(c)
   rect = cv.minAreaRect(c)
   box = cv.boxPoints(rect)
-  box = np.int0(box)
+  box = np.intp(box)
  
   # Retrieve the key parameters of the rotated bounding box
   center = (int(rect[0][0]),int(rect[0][1])) 
@@ -218,9 +216,9 @@ for i, c in enumerate(contours):
  
      
   if width < height:
-    angle = 90 - angle
+    angle = angle
   else:
-    angle = -angle
+    angle = 90 - angle
          
   label = "  Rotation Angle: " + str(angle) + " degrees"
   textbox = cv.rectangle(img, (center[0]-35, center[1]-25), 

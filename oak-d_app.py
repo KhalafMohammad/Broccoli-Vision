@@ -1,7 +1,9 @@
+import time 
 import cv2
 import depthai as dai
 import numpy as np
 from math import atan2, cos, sin, sqrt, pi
+import angle
 
 import hsv
 import thresh
@@ -18,6 +20,7 @@ iThreshFirstTime2 = True
 RETRIEVE_DEPTH_ADDITIONAL = False
 RETRIEVE_DEPTH = False
 
+last_captrue_time = time.time()
 def destroy(window_name):
 	cv2.destroyWindow(window_name)
 	cv2.namedWindow(window_name)
@@ -101,8 +104,7 @@ def execute(img, depthimg, spatiald,spatialciq, window_name):
 			# print(f"X: {oak.distanceCamObject[0]} mm")
 			# print(f"Y: {oak.distanceCamObject[1]} mm")
 			# print(f"Z: {oak.distanceCamObject[2]} mm")
-
-
+			
 		return img
 	elif window_name == 'additional':
 		global vision_algorithm_additional
@@ -182,10 +184,22 @@ with oak.oak_init() as device:
 			# retrieve the spatial data
 			spatialData = spatialCalcQueue.get().getSpatialLocations()
 
+			# start timer every 0.5 seconds to get a frame for stable processing
+			# this is needed to prevent the camera from capturing too fast and causing a lag in the processing
+			# the camera is capturing at 30 fps, so we need to wait 0.5 seconds to get a new frame
+			# this is not needed for the depth image, because it is already captured at 30 fps
+		
+			CurrentTime = time.time()
+			if (CurrentTime - last_captrue_time) >= 0.5:
 			# Get the next frame from the color camera
-			in_video = q_video.get()
-			frame = in_video.getCvFrame()
-			frame2 = in_video.getCvFrame()
+				in_video = q_video.get()
+				frame = in_video.getCvFrame()
+				frame2 = in_video.getCvFrame()
+			
+				last_captrue_time = CurrentTime
+			# in_video = q_video.get()
+			# frame = in_video.getCvFrame()
+			# frame2 = in_video.getCvFrame()
 
 			# if the camera is mounted up-side-down 180 degrees rotation is needed
 			#frame = cv2.rotate(frame, cv2.ROTATE_180)

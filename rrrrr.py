@@ -48,7 +48,7 @@ def getOrientation(pts, img):
     drawAxis(img, cntr, p2, (255, 255, 0), 5)
 
     angle = atan2(eigenvectors[0,1], eigenvectors[0,0]) # orientation in radians
-    label = "  Rotation Angle: " + str(-int(np.rad2deg(angle)) - 90) + " degrees"
+    label = "  Rotation Angle: " + str(int(np.rad2deg(angle)) + 180) + " degrees" #str(-int(np.rad2deg(angle))- 90)
     textbox = cv.rectangle(img, (cntr[0], cntr[1]-25), (cntr[0] + 250, cntr[1] + 10), (255,255,255), -1)
     cv.putText(img, label, (cntr[0], cntr[1]), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,0), 1, cv.LINE_AA)
 
@@ -59,7 +59,7 @@ parser = argparse.ArgumentParser(description='Code for Introduction to Principal
 parser.add_argument('--input', help='Path to input image.', default='frame_1.jpg')
 args = parser.parse_args()
 
-src = cv.imread("frame_4.png")
+src = cv.imread("frame_3.png")
 # Check if image is loaded successfully
 if src is None:
     print('Could not open or find the image: ', args.input)

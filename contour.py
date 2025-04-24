@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import angle
 
 bounding_rects = []
 
@@ -342,6 +343,17 @@ def getContours(img):
 	#print(len(contours))
 	contour_counter = 0
 
+	cnt = contours[0]
+	rows,cols = img.shape[:2]
+	for cnt in contours:
+		if len(cnt) < 2:
+			continue
+		[vx,vy,x,y] = cv2.fitLine(cnt, cv2.DIST_L2,0,0.01,0.01)
+		lefty = int((-x*vy/vx) + y)
+		righty = int(((cols-x)*vy/vx)+y)
+		cv2.line(img,(cols-1,righty),(0,lefty),(0,255,0),2)
+	
+
 	for contour in contours:
 		if contour_counter == 0:
 			contour_counter = contour_counter + 1
@@ -390,6 +402,16 @@ def execute_contour(img, settings):
 
 	#print(len(contours))
 	contour_counter = 0
+
+	cnt = contours[0]
+	rows,cols = img.shape[:2]
+	for cnt in contours:
+		if len(cnt) < 2:
+			continue
+		[vx,vy,x,y] = cv2.fitLine(cnt, cv2.DIST_L2,0,0.01,0.01)
+		lefty = int((-x*vy/vx) + y)
+		righty = int(((cols-x)*vy/vx)+y)
+		cv2.line(img,(cols-1,righty),(0,lefty),(0,255,0),2)
 
 	for contour in contours:
 		if contour_counter == 0:
