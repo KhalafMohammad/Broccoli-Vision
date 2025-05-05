@@ -29,6 +29,7 @@ def destroy(window_name):
 	hsv.HSV_ENABLED2 = False
 	thresh.THRESH_ENABLED = False
 	contour.CONTOURS_ENABLED = False
+	contour.CONTOURS_ENABLED2 = False
 	thresh.iThreshFirstTime = True
 
 def assemble(window_name): # for main window
@@ -40,7 +41,7 @@ def assemble(window_name): # for main window
 			vision_algorithm.append(['THRESH', thresh.THRESH_settings])
 		elif contour.CONTOURS_ENABLED:
 			vision_algorithm.append(['CONTOUR', contour.CONTOUR_settings])
-
+			contour.CONTOURS_ENABLED = False
 		print(len(vision_algorithm))
 
 	elif window_name == 'additional': # for additional window
@@ -51,7 +52,7 @@ def assemble(window_name): # for main window
 			vision_algorithm_additional.append(['THRESH', thresh.THRESH_settings])
 		elif contour.CONTOURS_ENABLED2:
 			vision_algorithm_additional.append(['CONTOUR', contour.CONTOUR_settings2])
-
+			contour.CONTOURS_ENABLED2 = False
 		print(len(vision_algorithm_additional))
 
 
@@ -90,7 +91,7 @@ def execute(img, depthimg, spatiald,spatialciq, window_name):
 
 			# yes, get coordinates and show in depth image
 			center, corners = oak.getBoundingBox(img, contour.bounding_rects, depthimg)
-			depthData, depthFrameColor = oak.depth_of_roi(depthimg, spatiald, corners, center, spatialciq)
+			depthData, depthFrameColor = oak.depth_of_roi(depthimg, spatiald, corners, center, spatialciq, 'main')
 
 
 			printColor = (255, 255, 255)
@@ -126,7 +127,7 @@ def execute(img, depthimg, spatiald,spatialciq, window_name):
 		if RETRIEVE_DEPTH_ADDITIONAL:
 			img = contour.getContours(img)
 			center, corners = oak.getBoundingBox(img, contour.bounding_rects, depthimg)
-			depthData, depthFrameColor = oak.depth_of_roi2(depthimg, spatiald, corners, center, spatialciq)
+			depthData, depthFrameColor = oak.depth_of_roi(depthimg, spatiald, corners, center, spatialciq, 'additional')
 
 			printColor = (255, 255, 255)
 			fontType = cv2.FONT_HERSHEY_TRIPLEX
@@ -197,6 +198,7 @@ with oak.oak_init() as device:
 				frame2 = in_video.getCvFrame()
 			
 				last_captrue_time = CurrentTime
+			
 			# in_video = q_video.get()
 			# frame = in_video.getCvFrame()
 			# frame2 = in_video.getCvFrame()
@@ -226,7 +228,7 @@ with oak.oak_init() as device:
 					if not len(contour.bounding_rects) == 0:
 						# yes, get coordinates and show in depth image
 						center, corners = oak.getBoundingBox(frame2, contour.bounding_rects, depthFrameColor)
-						depthData2, depthFrameColor = oak.depth_of_roi2(depthFrameColor, spatialData, corners, center, spatialCalcConfigInQueue)
+						depthData2, depthFrameColor = oak.depth_of_roi(depthFrameColor, spatialData, corners, center, spatialCalcConfigInQueue, 'additional')
 
 					cv2.imshow(additional_window, src_cnta)
 				else:
@@ -241,10 +243,10 @@ with oak.oak_init() as device:
 					# show thresh image
 					src_thra = thresh.toThresh(frame2)
 					cv2.imshow(additional_window, src_thra)
-				#elif contour.CONTOURS_ENABLED:
-					# show contours image
-					#src_contours = contour.getContours(frame)
-					#cv2.imshow(root_window, src_contours)
+				# elif contour.CONTOURS_ENABLED2:
+				# 	# show contours image
+				# 	src_contoursa = contour.getContours(frame2)
+				# 	cv2.imshow(root_window, src_contoursa)
 				else:
 					# show original image
 					cv2.imshow(additional_window, frame2)
@@ -272,7 +274,7 @@ with oak.oak_init() as device:
 					if not len(contour.bounding_rects) == 0:
 						# yes, get coordinates and show in depth image
 						center, corners = oak.getBoundingBox(frame, contour.bounding_rects, depthFrameColor)
-						depthData, depthFrameColor = oak.depth_of_roi(depthFrameColor, spatialData, corners, center, spatialCalcConfigInQueue)
+						depthData, depthFrameColor = oak.depth_of_roi(depthFrameColor, spatialData, corners, center, spatialCalcConfigInQueue, 'main')
 
 					cv2.imshow(root_window, src_cnt)
 				else:
@@ -287,23 +289,14 @@ with oak.oak_init() as device:
 					# show thresh image
 					src_thr = thresh.toThresh(frame)
 					cv2.imshow(root_window, src_thr)
-				#elif contour.CONTOURS_ENABLED:
-					# show contours image
-					#src_contours = contour.getContours(frame)
-					#cv2.imshow(root_window, src_contours)
+				# elif contour.CONTOURS_ENABLED:
+				# 	# show contours image
+				# 	src_contours = contour.getContours(frame)
+				# 	cv2.imshow(root_window, src_contours)
 				else:
 					# show original image
 					cv2.imshow(root_window, frame)
 
-
-			# draw line between the two bounding boxes
-			# pointcenter, corners = oak.getBoundingBox(frame, contour.bounding_rects, depthFrameColor)
-			# pointcenter2, corners = oak.getBoundingBox(frame2, contour.bounding_rects, depthFrameColor)
-
-			# # Draw a yellow line from center to center2
-			# if pointcenter is not None and pointcenter2 is not None:
-			# 	cv2.line(frame, pointcenter, pointcenter2, (0, 255, 255), 2)  # Yellow line
-			# 	#line isnt shown on the window
 
 			# Handle key presses
 			key = cv2.waitKey(1)
@@ -311,17 +304,23 @@ with oak.oak_init() as device:
 				# show window with hsv sliders
 				if not hsv.HSV_ENABLED2:
 					hsv.create_hsv_sliders('additional')
+					# hsv.HSV_ENABLED2 = True
+					# hsv.toHSV(frame2, 'additional')
 
 			if key == ord('c'):
 				# show window with contour sliders
 				if not contour.CONTOURS_ENABLED:
-					contour.create_contour_sliders('main')
+					contour.CONTOURS_ENABLED = True
+					# contour.create_contour_sliders('main')
 				if not contour.CONTOURS_ENABLED2:
-					contour.create_contour_sliders('additional')
+					contour.CONTOURS_ENABLED2 = True
+					# contour.create_contour_sliders('additional')
 			if key == ord('h'):
 				# show window with hsv sliders
 				if not hsv.HSV_ENABLED:
 					hsv.create_hsv_sliders('main')
+					# hsv.HSV_ENABLED = True
+					# hsv.toHSV(frame, 'main')
 			if key == ord('r'):
 				# enable depth retrieval
 				RETRIEVE_DEPTH = True

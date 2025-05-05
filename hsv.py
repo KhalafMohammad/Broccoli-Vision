@@ -14,10 +14,9 @@ HIGH_V = 5
 NAME   = 0
 VALUE  = 1
 
-HSV_settings = [['lowH', 33],['highH', 51], ['lowS', 98], ['highS', 255], ['lowV', 0], ['highV', 153]]
-HSV_settings2 = [['lowH', 23],['highH', 32], ['lowS', 110], ['highS', 255], ['lowV', 141], ['highV', 255]]
+HSV_settings = [['lowH', 46],['highH', 55], ['lowS', 71], ['highS', 255], ['lowV', 0], ['highV', 255]]
+HSV_settings2 = [['lowH', 0],['highH', 39], ['lowS', 99], ['highS', 255], ['lowV', 0], ['highV', 255]]
 
-#  hier maak een andere array aan met de settings die je wilt gebruiken voor additional
 def HSVcallback(x):
 	global HSV_settings
 

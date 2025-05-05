@@ -96,45 +96,30 @@ def getBoundingBox(img, rects, depthFrameColor):
 	return center, corners
 
 # Function for depth in roi
-def depth_of_roi(depthFrameColor, spatialData, corners, center, spatialCalcConfigInQueue):
-	global distanceCamObject
-	global roiCamObject
+def depth_of_roi(depthFrameColor, spatialData, corners, center, spatialCalcConfigInQueue, window_name):
+	if window_name == "main":
+		
+		global distanceCamObject
+		global roiCamObject
 
-	for depthData in spatialData:
-		if corners is not None:
-			# new roi and update the config -> keep measure roi small for higher accuracy
-			newRectangle = (int(center[0] - 10), int(center[1] - 10), 20, 20)
+		for depthData in spatialData:
+			if corners is not None:
+				# new roi and update the config -> keep measure roi small for higher accuracy
+				newRectangle = (int(center[0] - 10), int(center[1] - 10), 20, 20)
 
-			config = dai.SpatialLocationCalculatorConfigData()
+				config = dai.SpatialLocationCalculatorConfigData()
 
-			config.roi = dai.Rect(newRectangle[0], newRectangle[1], newRectangle[2], newRectangle[3])
-			cfg = dai.SpatialLocationCalculatorConfig()
-			cfg.addROI(config)
-			spatialCalcConfigInQueue.send(cfg)
+				config.roi = dai.Rect(newRectangle[0], newRectangle[1], newRectangle[2], newRectangle[3])
+				cfg = dai.SpatialLocationCalculatorConfig()
+				cfg.addROI(config)
+				spatialCalcConfigInQueue.send(cfg)
 
-			roi = depthData.config.roi
-			roi = roi.denormalize(width=depthFrameColor.shape[1], height=depthFrameColor.shape[0])
-			xmin = int(roi.topLeft().x)
-			ymin = int(roi.topLeft().y)
-			xmax = int(roi.bottomRight().x)
-			ymax = int(roi.bottomRight().y)
-
-			roiCamObject.clear()
-			roiCamObject.append(xmin)
-			roiCamObject.append(ymin)
-			roiCamObject.append(xmax)
-			roiCamObject.append(ymax)
-
-			if not (int(depthData.spatialCoordinates.x) == 0 and int(depthData.spatialCoordinates.y) == 0 and int(depthData.spatialCoordinates.z) == 0):
-				#print(int(depthData.spatialCoordinates.x))
-				#print(int(depthData.spatialCoordinates.y))
-				#print(int(depthData.spatialCoordinates.z))
-				#print(" ")
-
-				distanceCamObject.clear()
-				distanceCamObject.append(int(depthData.spatialCoordinates.x))
-				distanceCamObject.append(int(depthData.spatialCoordinates.y))
-				distanceCamObject.append(int(depthData.spatialCoordinates.z))
+				roi = depthData.config.roi
+				roi = roi.denormalize(width=depthFrameColor.shape[1], height=depthFrameColor.shape[0])
+				xmin = int(roi.topLeft().x)
+				ymin = int(roi.topLeft().y)
+				xmax = int(roi.bottomRight().x)
+				ymax = int(roi.bottomRight().y)
 
 				roiCamObject.clear()
 				roiCamObject.append(xmin)
@@ -142,55 +127,53 @@ def depth_of_roi(depthFrameColor, spatialData, corners, center, spatialCalcConfi
 				roiCamObject.append(xmax)
 				roiCamObject.append(ymax)
 
-			printColor = (255, 255, 255)
-			fontType = cv2.FONT_HERSHEY_TRIPLEX
-			cv2.rectangle(depthFrameColor, (xmin, ymin), (xmax, ymax), printColor, 1)
-			cv2.putText(depthFrameColor, f"X: {int(depthData.spatialCoordinates.x)} mm", (xmin + 10, ymin + 50), fontType, 0.5, printColor)
-			cv2.putText(depthFrameColor, f"Y: {int(depthData.spatialCoordinates.y)} mm", (xmin + 10, ymin + 65), fontType, 0.5, printColor)
-			cv2.putText(depthFrameColor, f"Z: {int(depthData.spatialCoordinates.z)} mm", (xmin + 10, ymin + 80), fontType, 0.5, printColor)
+				if not (int(depthData.spatialCoordinates.x) == 0 and int(depthData.spatialCoordinates.y) == 0 and int(depthData.spatialCoordinates.z) == 0):
+					#print(int(depthData.spatialCoordinates.x))
+					#print(int(depthData.spatialCoordinates.y))
+					#print(int(depthData.spatialCoordinates.z))
+					#print(" ")
 
-	return depthData, depthFrameColor
+					distanceCamObject.clear()
+					distanceCamObject.append(int(depthData.spatialCoordinates.x))
+					distanceCamObject.append(int(depthData.spatialCoordinates.y))
+					distanceCamObject.append(int(depthData.spatialCoordinates.z))
 
+					roiCamObject.clear()
+					roiCamObject.append(xmin)
+					roiCamObject.append(ymin)
+					roiCamObject.append(xmax)
+					roiCamObject.append(ymax)
 
-def depth_of_roi2(depthFrameColor, spatialData, corners, center, spatialCalcConfigInQueue):
-	global distanceCamObject2
-	global roiCamObject2
+				printColor = (255, 255, 255)
+				fontType = cv2.FONT_HERSHEY_TRIPLEX
+				cv2.rectangle(depthFrameColor, (xmin, ymin), (xmax, ymax), printColor, 1)
+				cv2.putText(depthFrameColor, f"X: {int(depthData.spatialCoordinates.x)} mm", (xmin + 10, ymin + 50), fontType, 0.5, printColor)
+				cv2.putText(depthFrameColor, f"Y: {int(depthData.spatialCoordinates.y)} mm", (xmin + 10, ymin + 65), fontType, 0.5, printColor)
+				cv2.putText(depthFrameColor, f"Z: {int(depthData.spatialCoordinates.z)} mm", (xmin + 10, ymin + 80), fontType, 0.5, printColor)
 
-	for depthData in spatialData:
-		if corners is not None:
-			# new roi and update the config -> keep measure roi small for higher accuracy
-			newRectangle = (int(center[0] - 10), int(center[1] - 10), 20, 20)
+		return depthData, depthFrameColor
+	elif window_name == "additional":
+		global distanceCamObject2
+		global roiCamObject2
 
-			config = dai.SpatialLocationCalculatorConfigData()
+		for depthData in spatialData:
+			if corners is not None:
+				# new roi and update the config -> keep measure roi small for higher accuracy
+				newRectangle = (int(center[0] - 10), int(center[1] - 10), 20, 20)
 
-			config.roi = dai.Rect(newRectangle[0], newRectangle[1], newRectangle[2], newRectangle[3])
-			cfg = dai.SpatialLocationCalculatorConfig()
-			cfg.addROI(config)
-			spatialCalcConfigInQueue.send(cfg)
+				config = dai.SpatialLocationCalculatorConfigData()
 
-			roi = depthData.config.roi
-			roi = roi.denormalize(width=depthFrameColor.shape[1], height=depthFrameColor.shape[0])
-			xmin = int(roi.topLeft().x)
-			ymin = int(roi.topLeft().y)
-			xmax = int(roi.bottomRight().x)
-			ymax = int(roi.bottomRight().y)
+				config.roi = dai.Rect(newRectangle[0], newRectangle[1], newRectangle[2], newRectangle[3])
+				cfg = dai.SpatialLocationCalculatorConfig()
+				cfg.addROI(config)
+				spatialCalcConfigInQueue.send(cfg)
 
-			roiCamObject2.clear()
-			roiCamObject2.append(xmin)
-			roiCamObject2.append(ymin)
-			roiCamObject2.append(xmax)
-			roiCamObject2.append(ymax)
-
-			if not (int(depthData.spatialCoordinates.x) == 0 and int(depthData.spatialCoordinates.y) == 0 and int(depthData.spatialCoordinates.z) == 0):
-				#print(int(depthData.spatialCoordinates.x))
-				#print(int(depthData.spatialCoordinates.y))
-				#print(int(depthData.spatialCoordinates.z))
-				#print(" ")
-
-				distanceCamObject2.clear()
-				distanceCamObject2.append(int(depthData.spatialCoordinates.x))
-				distanceCamObject2.append(int(depthData.spatialCoordinates.y))
-				distanceCamObject2.append(int(depthData.spatialCoordinates.z))
+				roi = depthData.config.roi
+				roi = roi.denormalize(width=depthFrameColor.shape[1], height=depthFrameColor.shape[0])
+				xmin = int(roi.topLeft().x)
+				ymin = int(roi.topLeft().y)
+				xmax = int(roi.bottomRight().x)
+				ymax = int(roi.bottomRight().y)
 
 				roiCamObject2.clear()
 				roiCamObject2.append(xmin)
@@ -198,24 +181,28 @@ def depth_of_roi2(depthFrameColor, spatialData, corners, center, spatialCalcConf
 				roiCamObject2.append(xmax)
 				roiCamObject2.append(ymax)
 
-			printColor = (255, 255, 255)
-			fontType = cv2.FONT_HERSHEY_TRIPLEX
-			cv2.rectangle(depthFrameColor, (xmin, ymin), (xmax, ymax), printColor, 1)
-			cv2.putText(depthFrameColor, f"X: {int(depthData.spatialCoordinates.x)} mm", (xmin + 10, ymin + 50), fontType, 0.5, printColor)
-			cv2.putText(depthFrameColor, f"Y: {int(depthData.spatialCoordinates.y)} mm", (xmin + 10, ymin + 65), fontType, 0.5, printColor)
-			cv2.putText(depthFrameColor, f"Z: {int(depthData.spatialCoordinates.z)} mm", (xmin + 10, ymin + 80), fontType, 0.5, printColor)
+				if not (int(depthData.spatialCoordinates.x) == 0 and int(depthData.spatialCoordinates.y) == 0 and int(depthData.spatialCoordinates.z) == 0):
+					#print(int(depthData.spatialCoordinates.x))
+					#print(int(depthData.spatialCoordinates.y))
+					#print(int(depthData.spatialCoordinates.z))
+					#print(" ")
 
-	return depthData, depthFrameColor
+					distanceCamObject2.clear()
+					distanceCamObject2.append(int(depthData.spatialCoordinates.x))
+					distanceCamObject2.append(int(depthData.spatialCoordinates.y))
+					distanceCamObject2.append(int(depthData.spatialCoordinates.z))
 
+					roiCamObject2.clear()
+					roiCamObject2.append(xmin)
+					roiCamObject2.append(ymin)
+					roiCamObject2.append(xmax)
+					roiCamObject2.append(ymax)
 
+				printColor = (255, 255, 255)
+				fontType = cv2.FONT_HERSHEY_TRIPLEX
+				cv2.rectangle(depthFrameColor, (xmin, ymin), (xmax, ymax), printColor, 1)
+				cv2.putText(depthFrameColor, f"X: {int(depthData.spatialCoordinates.x)} mm", (xmin + 10, ymin + 50), fontType, 0.5, printColor)
+				cv2.putText(depthFrameColor, f"Y: {int(depthData.spatialCoordinates.y)} mm", (xmin + 10, ymin + 65), fontType, 0.5, printColor)
+				cv2.putText(depthFrameColor, f"Z: {int(depthData.spatialCoordinates.z)} mm", (xmin + 10, ymin + 80), fontType, 0.5, printColor)
 
-
-
-
-
-
-
-
-
-
-
+		return depthData, depthFrameColor
