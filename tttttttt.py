@@ -177,7 +177,7 @@ from math import atan2, cos, sin, sqrt, pi
 import numpy as np
  
 # Load the image
-img = cv.imread("frame_2.png")
+img = cv.imread("frame_0pro.png")
  
 # Was the image there?
 if img is None:
@@ -188,7 +188,9 @@ if img is None:
 gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
  
 # Convert image to binary
-_, bw = cv.threshold(gray, 50, 255, cv.THRESH_BINARY | cv.THRESH_OTSU)
+_, bw = cv.threshold(gray, 10, 255, cv.THRESH_BINARY | cv.THRESH_OTSU)
+
+cv.imshow('Input Image', bw)
  
 # Find all the contours in the thresholded image
 contours, _ = cv.findContours(bw, cv.RETR_LIST, cv.CHAIN_APPROX_NONE)
@@ -214,7 +216,9 @@ for i, c in enumerate(contours):
   height = int(rect[1][1])
   angle = int(rect[2])
  
-     
+  x,y = center
+  print(x,y)
+
   if width < height:
     angle = angle
   else:
