@@ -346,6 +346,8 @@ def getContours(img):
 	global PolyArea
 	global MaxArea
 	global bounding_rect
+	xc = 0
+	yc = 0
 
 	# create copy of source image
 	src_cnt = np.copy(img)
@@ -383,16 +385,16 @@ def getContours(img):
 				box = cv2.boxPoints(rect)
 				box = np.int0(box)
 
-				center = (int(rect[0][0]),int(rect[0][1])) # center of the rectangle
-				
 				cv2.drawContours(src_cnt,[box],0,(0,0,255),2)
-				[vx,vy,x,y] = cv2.fitLine(cnt, cv2.DIST_L2,0,0.01,0.01)
-				lefty = int((-x*vy/vx) + y)
-				righty = int(((cols-x)*vy/vx)+y)
-				cv2.line(src_cnt,(cols-1,righty),(0,lefty),(0,255,0),2)
 
-				x1,y2 = center
+				center = (int(rect[0][0]),int(rect[0][1]))
+    
+				# [vx,vy,x,y] = cv2.fitLine(box, cv2.DIST_L2,0,0.01,0.01)
+				# lefty = int((-x*vy/vx) + y)
+				# righty = int(((cols-x)*vy/vx)+y)
+				# cv2.line(src_cnt,(cols-1,righty),(0,lefty),(0,255,0),2)
 
+				xc,yc = center
 				# retrieve contour perimeter - uncomment if to be used
 				#perimeter = cv2.arcLength(contour, True)
 				#print(perimeter)
@@ -402,7 +404,7 @@ def getContours(img):
 				bounding_rects.append((x,y,w,h))
 				cv2.rectangle(src_cnt,(x,y),(x+w,y+h),(0,255,0),2)
 
-	return src_cnt, x1 ,y2
+	return src_cnt, xc, yc
 
 def execute_contour(img, settings):
 	global BlurKernel
