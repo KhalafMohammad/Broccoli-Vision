@@ -14,8 +14,8 @@ HIGH_V = 5
 NAME   = 0
 VALUE  = 1
 
-HSV_settings = [['lowH', 46],['highH', 55], ['lowS', 71], ['highS', 255], ['lowV', 0], ['highV', 255]]
-HSV_settings2 = [['lowH', 0],['highH', 39], ['lowS', 99], ['highS', 255], ['lowV', 0], ['highV', 255]]
+HSV_settings = [['lowH', 34],['highH', 41], ['lowS', 71], ['highS', 255], ['lowV', 0], ['highV', 255]]
+HSV_settings2 = [['lowH', 30],['highH', 33], ['lowS', 96], ['highS', 161], ['lowV', 209], ['highV', 255]]
 
 def HSVcallback(x):
 	global HSV_settings

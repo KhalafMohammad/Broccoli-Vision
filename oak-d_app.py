@@ -10,6 +10,8 @@ import thresh
 import contour
 import oak
 
+import anglecalc
+
 vision_algorithm = []
 iThreshFirstTime = True
 
@@ -19,6 +21,11 @@ iThreshFirstTime2 = True
 
 RETRIEVE_DEPTH_ADDITIONAL = False
 RETRIEVE_DEPTH = False
+
+x1 = 0
+y1=0
+y2 = 0
+x2 = 0
 
 last_captrue_time = time.time()
 def destroy(window_name):
@@ -87,7 +94,7 @@ def execute(img, depthimg, spatiald,spatialciq, window_name):
 
 		if RETRIEVE_DEPTH:# and not len(contour.bounding_rects) == 0:
 			# get contours
-			img = contour.getContours(img)
+			img, x1g,y1g = contour.getContours(img)
 
 			# yes, get coordinates and show in depth image
 			center, corners = oak.getBoundingBox(img, contour.bounding_rects, depthimg)
@@ -125,7 +132,7 @@ def execute(img, depthimg, spatiald,spatialciq, window_name):
 				img = contour.execute_contour(img, x[1])
 
 		if RETRIEVE_DEPTH_ADDITIONAL:
-			img = contour.getContours(img)
+			img, x2g,y2g = contour.getContours(img)
 			center, corners = oak.getBoundingBox(img, contour.bounding_rects, depthimg)
 			depthData, depthFrameColor = oak.depth_of_roi(depthimg, spatiald, corners, center, spatialciq, 'additional')
 
@@ -191,7 +198,7 @@ with oak.oak_init() as device:
 			# this is not needed for the depth image, because it is already captured at 30 fps
 		
 			CurrentTime = time.time()
-			if (CurrentTime - last_captrue_time) >= 0.5:
+			if (CurrentTime - last_captrue_time) >= 0.0:
 			# Get the next frame from the color camera
 				in_video = q_video.get()
 				frame = in_video.getCvFrame()
@@ -222,7 +229,7 @@ with oak.oak_init() as device:
 					cv2.imshow(additional_window, src_thra)
 				elif contour.CONTOURS_ENABLED2:
 					# show contours image
-					src_cnta = contour.getContours(src_executea)
+					src_cnta, x2,y2 = contour.getContours(src_executea)
 
 					# are there contours with a bounding rectangle?
 					if not len(contour.bounding_rects) == 0:
@@ -268,7 +275,7 @@ with oak.oak_init() as device:
 					cv2.imshow(root_window, src_thr)
 				elif contour.CONTOURS_ENABLED:
 					# show contours image
-					src_cnt = contour.getContours(src_execute)
+					src_cnt, x1,y1 = contour.getContours(src_execute)
 
 					# are there contours with a bounding rectangle?
 					if not len(contour.bounding_rects) == 0:
@@ -296,7 +303,8 @@ with oak.oak_init() as device:
 				else:
 					# show original image
 					cv2.imshow(root_window, frame)
-
+					
+			anglecalc.get_angle(x1,y1,x2,y2)
 
 			# Handle key presses
 			key = cv2.waitKey(1)
@@ -311,7 +319,7 @@ with oak.oak_init() as device:
 				# show window with contour sliders
 				if not contour.CONTOURS_ENABLED:
 					contour.CONTOURS_ENABLED = True
-					# contour.create_contour_sliders('main')
+					contour.create_contour_sliders('main')
 				if not contour.CONTOURS_ENABLED2:
 					contour.CONTOURS_ENABLED2 = True
 					# contour.create_contour_sliders('additional')
