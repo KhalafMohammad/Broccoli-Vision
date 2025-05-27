@@ -12,6 +12,25 @@ import oak
 
 import anglecalc
 
+import queue
+import threading
+import socket
+
+HOST = '127.0.0.1'  # The server's hostname or IP address
+PORT = 65432        # The port used by the server
+
+def start_client(coordinateQueue):
+	with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+		s.connect((HOST, PORT))
+		# message = "Hallo van de client!"
+		while True:
+			if coordinateQueue.qsize != 0:
+				message = coordinateQueue.get()
+			# message = "test"
+				s.sendall(message.encode())
+			# data = s.recv(1024)
+			# print(f"Antwoord van server: {data.decode()}")
+
 vision_algorithm = []
 iThreshFirstTime = True
 
@@ -144,6 +163,13 @@ def execute(img, depthimg, spatiald,spatialciq, window_name):
 		return img
 
 
+
+# def main():
+coordinateQueue = queue.Queue()
+coordinateThread = threading.Thread(target=start_client, args=(coordinateQueue,), daemon=True)
+coordinateThread.start()
+# coordinateQueue.
+
 # name root window
 root_window = "main"
 cv2.namedWindow(root_window)
@@ -153,6 +179,9 @@ additional_window = "additional"
 cv2.namedWindow(additional_window)
 
 with oak.oak_init() as device:
+	
+
+	
 	# Get the output queue
 	q_video = device.getOutputQueue(name="video", maxSize=4, blocking=False)
 	frame_count = 0
@@ -309,8 +338,8 @@ with oak.oak_init() as device:
 				anglecalc.angle = 0.0
 				print("Angle: N/A")
 
-			stam_coordinaten = (x2, y2) # coordinates of the stem point
-
+			stam_coordinaten = (x2.__str__() + ";" + y2.__str__() + "\n") # coordinates of the stem point
+			coordinateQueue.put(stam_coordinaten)
 			
 			# Handle key presses
 			key = cv2.waitKey(1)
