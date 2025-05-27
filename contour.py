@@ -7,10 +7,10 @@ bounding_rects = []
 
 CONTOURS_ENABLED = False
 CONTOURS_ENABLED2 = False
-iBlurKernelSize = 0
+iBlurKernelSize = 5
 iBlurKernelSize2 = 0
 
-BlurKernel = (5,5)
+BlurKernel = (51,51)
 POLYGONS_ENABLED = False
 POLYGONS_ENABLED2 = False
 iPolyKernelSize = 0
@@ -320,7 +320,7 @@ def create_contour_sliders(window_name):
 		global iPolyArea2
 
 		CONTOURS_ENABLED2 = True
-		cv2.createTrackbar('BlurKernelSize2', 'additional', iBlurKernelSize2, 5, BlurKernelCallback2)
+		cv2.createTrackbar('BlurKernelSize2', 'additional', iBlurKernelSize2, 5)
 		cv2.createTrackbar('PolyKernelSize2', 'additional', iPolyKernelSize2, 5, PolyKernelCallback2)
 		cv2.createTrackbar('PolyEpsilon2', 'additional', iEpsilon2, 10, PolyEpsilonCallback2)
 		cv2.createTrackbar('PolygonArea2', 'additional', iPolyArea2, 10, PolyAreaCallback2)
@@ -385,9 +385,16 @@ def getContours(img):
 				box = cv2.boxPoints(rect)
 				box = np.int0(box)
 
+				if rect == None:
+					print("No rectangle found for contour")
+					center = (0,0)
+				else:
+					center = (int(rect[0][0]),int(rect[0][1]))
+
+					
 				cv2.drawContours(src_cnt,[box],0,(0,0,255),2)
 
-				center = (int(rect[0][0]),int(rect[0][1]))
+				
     
 				# [vx,vy,x,y] = cv2.fitLine(box, cv2.DIST_L2,0,0.01,0.01)
 				# lefty = int((-x*vy/vx) + y)

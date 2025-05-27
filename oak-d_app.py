@@ -23,7 +23,7 @@ RETRIEVE_DEPTH_ADDITIONAL = False
 RETRIEVE_DEPTH = False
 
 x1 = 0
-y1=0
+y1 = 0
 y2 = 0
 x2 = 0
 
@@ -108,10 +108,7 @@ def execute(img, depthimg, spatiald,spatialciq, window_name):
 			cv2.putText(img, f"X: {oak.distanceCamObject[0]} mm", (oak.roiCamObject[0] + 10, oak.roiCamObject[1] + 50), fontType, 0.5, printColor)
 			cv2.putText(img, f"Y: {oak.distanceCamObject[1]} mm", (oak.roiCamObject[0] + 10, oak.roiCamObject[1] + 65), fontType, 0.5, printColor)
 			cv2.putText(img, f"Z: {oak.distanceCamObject[2]} mm", (oak.roiCamObject[0] + 10, oak.roiCamObject[1] + 80), fontType, 0.5, printColor)
-			#print the depth and the coordinates to the object
-			# print(f"X: {oak.distanceCamObject[0]} mm")
-			# print(f"Y: {oak.distanceCamObject[1]} mm")
-			# print(f"Z: {oak.distanceCamObject[2]} mm")
+
 			
 		return img
 	elif window_name == 'additional':
@@ -304,8 +301,17 @@ with oak.oak_init() as device:
 					# show original image
 					cv2.imshow(root_window, frame)
 					
-			anglecalc.get_angle(x1,y1,x2,y2)
+			if x1 != 0 and y1 != 0 and x2 != 0 and y2 != 0:
+			
+				_angle = anglecalc.get_angle(x1,y1,x2,y2)
+				print(f"Angle: {_angle:.1f} degrees")
+			else:
+				anglecalc.angle = 0.0
+				print("Angle: N/A")
 
+			stam_coordinaten = (x2, y2) # coordinates of the stem point
+
+			
 			# Handle key presses
 			key = cv2.waitKey(1)
 			if key == ord('p'): # voor additional window
