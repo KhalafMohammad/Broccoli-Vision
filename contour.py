@@ -31,8 +31,8 @@ iPolyArea2 = 0
 PolyArea2 = 0.005
 MaxArea2 = 0
 
-CONTOUR_settings = [['Blurkernel', (5,5)]]
-CONTOUR_settings2 = [['Blurkernel2', (5,5)]]
+CONTOUR_settings = [['Blurkernel', (51,51)]]
+CONTOUR_settings2 = [['Blurkernel2', (51,51)]]
 
 def BlurKernelCallback(x):
 	global iBlurKernelSize
@@ -299,10 +299,10 @@ def create_contour_sliders(window_name):
 		cv2.createTrackbar('PolyEpsilon', 'main', iEpsilon, 10, PolyEpsilonCallback)
 		cv2.createTrackbar('PolygonArea', 'main', iPolyArea, 10, PolyAreaCallback)
 
-		iBlurKernelSize = 0
+		iBlurKernelSize = 5
 		cv2.setTrackbarPos('BlurKernelSize', 'main', iBlurKernelSize)
 
-		iPolyKernelSize = 0
+		iPolyKernelSize = 5
 		cv2.setTrackbarPos('PolyKernelSize', 'main', iPolyKernelSize)
 
 		iEpsilon = 1
@@ -320,15 +320,15 @@ def create_contour_sliders(window_name):
 		global iPolyArea2
 
 		CONTOURS_ENABLED2 = True
-		cv2.createTrackbar('BlurKernelSize2', 'additional', iBlurKernelSize2, 5)
+		cv2.createTrackbar('BlurKernelSize2', 'additional', iBlurKernelSize2, 5, BlurKernelCallback2)
 		cv2.createTrackbar('PolyKernelSize2', 'additional', iPolyKernelSize2, 5, PolyKernelCallback2)
 		cv2.createTrackbar('PolyEpsilon2', 'additional', iEpsilon2, 10, PolyEpsilonCallback2)
 		cv2.createTrackbar('PolygonArea2', 'additional', iPolyArea2, 10, PolyAreaCallback2)
 
-		iBlurKernelSize2 = 0
+		iBlurKernelSize2 = 5
 		cv2.setTrackbarPos('BlurKernelSize2', 'additional', iBlurKernelSize2)
 
-		iPolyKernelSize2 = 0
+		iPolyKernelSize2 = 5
 		cv2.setTrackbarPos('PolyKernelSize2', 'additional', iPolyKernelSize2)
 
 		iEpsilon2 = 1
@@ -348,7 +348,7 @@ def getContours(img):
 	global bounding_rect
 	xc = 0
 	yc = 0
-
+	avl_area = 0
 	# create copy of source image
 	src_cnt = np.copy(img)
 
@@ -375,8 +375,13 @@ def getContours(img):
 			#print(MaxArea)
 			ThreshArea = int(MaxArea * PolyArea)
 			#print(ThreshArea)
-
+			
+			if cv2.contourArea(contour) >= 0:
+				avl_area = cv2.contourArea(contour)
+			else:
+				avl_area = 0
 			if(cv2.contourArea(contour) > ThreshArea):
+				
 				# draw the contour in the source image
 				cv2.drawContours(src_cnt, contour, -1, (0,0,255), 3)
 				rows,cols = src_cnt.shape[:2]
@@ -400,7 +405,7 @@ def getContours(img):
 				# lefty = int((-x*vy/vx) + y)
 				# righty = int(((cols-x)*vy/vx)+y)
 				# cv2.line(src_cnt,(cols-1,righty),(0,lefty),(0,255,0),2)
-
+				
 				xc,yc = center
 				# retrieve contour perimeter - uncomment if to be used
 				#perimeter = cv2.arcLength(contour, True)
@@ -411,7 +416,7 @@ def getContours(img):
 				bounding_rects.append((x,y,w,h))
 				cv2.rectangle(src_cnt,(x,y),(x+w,y+h),(0,255,0),2)
 
-	return src_cnt, xc, yc
+	return src_cnt, xc, yc, avl_area
 
 def execute_contour(img, settings):
 	global BlurKernel

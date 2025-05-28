@@ -41,6 +41,9 @@ iThreshFirstTime2 = True
 RETRIEVE_DEPTH_ADDITIONAL = False
 RETRIEVE_DEPTH = False
 
+object_area_stam = 0
+object_area_kop = 0
+
 x1 = 0
 y1 = 0
 y2 = 0
@@ -167,7 +170,7 @@ def execute(img, depthimg, spatiald,spatialciq, window_name):
 # def main():
 coordinateQueue = queue.Queue()
 coordinateThread = threading.Thread(target=start_client, args=(coordinateQueue,), daemon=True)
-coordinateThread.start()
+# coordinateThread.start()
 # coordinateQueue.
 
 # name root window
@@ -177,7 +180,7 @@ cv2.namedWindow(root_window)
 # Create a second window
 additional_window = "additional"
 cv2.namedWindow(additional_window)
-
+av_angle = []
 with oak.oak_init() as device:
 	
 
@@ -255,7 +258,7 @@ with oak.oak_init() as device:
 					cv2.imshow(additional_window, src_thra)
 				elif contour.CONTOURS_ENABLED2:
 					# show contours image
-					src_cnta, x2,y2 = contour.getContours(src_executea)
+					src_cnta, x2,y2, object_area_stam = contour.getContours(src_executea)
 
 					# are there contours with a bounding rectangle?
 					if not len(contour.bounding_rects) == 0:
@@ -301,7 +304,7 @@ with oak.oak_init() as device:
 					cv2.imshow(root_window, src_thr)
 				elif contour.CONTOURS_ENABLED:
 					# show contours image
-					src_cnt, x1,y1 = contour.getContours(src_execute)
+					src_cnt, x1,y1, object_area_kop = contour.getContours(src_execute)
 
 					# are there contours with a bounding rectangle?
 					if not len(contour.bounding_rects) == 0:
@@ -329,16 +332,30 @@ with oak.oak_init() as device:
 				else:
 					# show original image
 					cv2.imshow(root_window, frame)
-					
-			if x1 != 0 and y1 != 0 and x2 != 0 and y2 != 0:
-			
-				_angle = anglecalc.get_angle(x1,y1,x2,y2)
-				print(f"Angle: {_angle:.1f} degrees")
-			else:
-				anglecalc.angle = 0.0
-				print("Angle: N/A")
 
-			stam_coordinaten = (x2.__str__() + ";" + y2.__str__() + "\n") # coordinates of the stem point
+			
+			_avrage_angle = 0.0
+			if object_area_kop > 10000 and object_area_stam > 1000: # 21000 & 5000
+
+				
+				if x1 != 0 and y1 != 0 and x2 != 0 and y2 != 0:
+			
+					_angle = anglecalc.get_angle(x1,y1,x2,y2)
+				
+					av_angle.append(_angle)
+					if len(av_angle) > 5:
+						av_angle.pop(0)
+					# elif len(av_angle) == 3:
+					_avrage_angle = ( sum(av_angle))/ len(av_angle) # av_angle[0] + av_angle[1] + av_angle[2]
+					print(f"Angle: {_angle:.0f}, AV: {_avrage_angle:.0f} degrees")
+				
+				
+				else:
+					anglecalc.angle = 0.0
+					print("Angle: N/A")
+				
+			_avr_ang_str_0f = (f"{_avrage_angle:.0f}")
+			stam_coordinaten = (x2.__str__() + ";" + y2.__str__() + ";" + _avr_ang_str_0f +"\n") # coordinates of the stem point
 			coordinateQueue.put(stam_coordinaten)
 			
 			# Handle key presses
