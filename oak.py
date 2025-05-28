@@ -56,10 +56,10 @@ def oak_init():
 	config.depthThresholds.upperThreshold = 10000
 	calculationAlgorithm = dai.SpatialLocationCalculatorAlgorithm.MEDIAN
 
-	# use a region of interest for finding the distance for a specific part of the image
-	topLeft = dai.Point2f(0.4, 0.4)
-	bottomRight = dai.Point2f(0.6, 0.6)
-	config.roi = dai.Rect(topLeft, bottomRight)
+	# # use a region of interest for finding the distance for a specific part of the image
+	# topLeft = dai.Point2f(0.4, 0.4)
+	# bottomRight = dai.Point2f(0.6, 0.6)
+	# config.roi = dai.Rect(topLeft, bottomRight)
 
 	spatialLocationCalculator.inputConfig.setWaitForMessage(False)
 	spatialLocationCalculator.initialConfig.addROI(config)

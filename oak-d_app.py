@@ -181,6 +181,8 @@ cv2.namedWindow(root_window)
 additional_window = "additional"
 cv2.namedWindow(additional_window)
 av_angle = []
+command_sing = []
+command_sing_flag = False
 with oak.oak_init() as device:
 	
 
@@ -335,29 +337,41 @@ with oak.oak_init() as device:
 
 			
 			_avrage_angle = 0.0
-			if object_area_kop > 10000 and object_area_stam > 1000: # 21000 & 5000
+			
+			if object_area_kop > 12000 and object_area_stam > 1200: # 21000 & 5000
 
 				
 				if x1 != 0 and y1 != 0 and x2 != 0 and y2 != 0:
-			
+					
+					command_sing_flag = True
 					_angle = anglecalc.get_angle(x1,y1,x2,y2)
 				
 					av_angle.append(_angle)
 					if len(av_angle) > 5:
 						av_angle.pop(0)
 					# elif len(av_angle) == 3:
-					_avrage_angle = ( sum(av_angle))/ len(av_angle) # av_angle[0] + av_angle[1] + av_angle[2]
-					print(f"Angle: {_angle:.0f}, AV: {_avrage_angle:.0f} degrees")
-				
+					_avrage_angle = ( sum(av_angle)) / len(av_angle) # av_angle[0] + av_angle[1] + av_angle[2]
+					# print(f"Angle: {_angle:.0f}, AV: {_avrage_angle:.0f} degrees")
 				
 				else:
 					anglecalc.angle = 0.0
 					print("Angle: N/A")
-				
-			_avr_ang_str_0f = (f"{_avrage_angle:.0f}")
-			stam_coordinaten = (x2.__str__() + ";" + y2.__str__() + ";" + _avr_ang_str_0f +"\n") # coordinates of the stem point
-			coordinateQueue.put(stam_coordinaten)
+
+				_avr_ang_str_0f = (f"{_avrage_angle:.0f}")
+				stam_coordinaten = (x2.__str__() + ";" + y2.__str__() + ";" + _avr_ang_str_0f) # coordinates of the stem point
+				# print(f"Coordinates: {stam_coordinaten}")
+
+				command_sing.append(stam_coordinaten)
+				coordinateQueue.put(stam_coordinaten)
+			else:
+				command_sing_flag = False
+
+			if not command_sing_flag and len(command_sing) > 5:
+				print(f"Command sing: {command_sing[len(command_sing) -1]}")
+				command_sing_flag = True
+				command_sing.clear() 
 			
+
 			# Handle key presses
 			key = cv2.waitKey(1)
 			if key == ord('p'): # voor additional window
