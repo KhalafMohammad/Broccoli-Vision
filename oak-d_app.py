@@ -21,15 +21,19 @@ PORT = 65432        # The port used by the server
 
 def start_client(coordinateQueue):
 	with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-		s.connect((HOST, PORT))
-		# message = "Hallo van de client!"
 		while True:
-			if coordinateQueue.qsize != 0:
-				message = coordinateQueue.get()
-			# message = "test"
-				s.sendall(message.encode())
-			# data = s.recv(1024)
-			# print(f"Antwoord van server: {data.decode()}")
+			try:
+				s.connect((HOST, PORT))
+				# message = "Hallo van de client!"
+				while True:
+					if coordinateQueue.qsize != 0:
+						message = coordinateQueue.get()
+					# message = "test"
+						s.sendall(message.encode())
+					# data = s.recv(1024)
+					# print(f"Antwoord van server: {data.decode()}")
+			except:
+				pass
 
 vision_algorithm = []
 iThreshFirstTime = True
@@ -170,7 +174,7 @@ def execute(img, depthimg, spatiald,spatialciq, window_name):
 # def main():
 coordinateQueue = queue.Queue()
 coordinateThread = threading.Thread(target=start_client, args=(coordinateQueue,), daemon=True)
-# coordinateThread.start()
+coordinateThread.start()
 # coordinateQueue.
 
 # name root window
@@ -362,12 +366,13 @@ with oak.oak_init() as device:
 				# print(f"Coordinates: {stam_coordinaten}")
 
 				command_sing.append(stam_coordinaten)
-				coordinateQueue.put(stam_coordinaten)
+	
 			else:
 				command_sing_flag = False
 
 			if not command_sing_flag and len(command_sing) > 5:
 				print(f"Command sing: {command_sing[len(command_sing) -1]}")
+				coordinateQueue.put(command_sing[len(command_sing) -1])
 				command_sing_flag = True
 				command_sing.clear() 
 			
