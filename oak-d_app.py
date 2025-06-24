@@ -53,6 +53,10 @@ y1 = 0
 y2 = 0
 x2 = 0
 
+
+last_command_add_time = 0
+last_command_sing_len = 0
+
 last_captrue_time = time.time()
 def destroy(window_name):
 	cv2.destroyWindow(window_name)
@@ -342,40 +346,82 @@ with oak.oak_init() as device:
 			
 			_avrage_angle = 0.0
 			
-			if object_area_kop > 12000 and object_area_stam > 1200: # 21000 & 5000
+			# if object_area_kop > 20000 and object_area_stam > 1200: # 21000 & 5000
 
 				
-				if x1 != 0 and y1 != 0 and x2 != 0 and y2 != 0:
+			# 	if x1 != 0 and y1 != 0 and x2 != 0 and y2 != 0:
 					
-					command_sing_flag = True
-					_angle = anglecalc.get_angle(x1,y1,x2,y2)
+			# 		command_sing_flag = True
+			# 		_angle = anglecalc.get_angle(x1,y1,x2,y2)
 				
+			# 		av_angle.append(_angle)
+			# 		if len(av_angle) > 5:
+			# 			av_angle.pop(0)
+			# 		# elif len(av_angle) == 3:
+			# 		_avrage_angle = ( sum(av_angle)) / len(av_angle) # av_angle[0] + av_angle[1] + av_angle[2]
+			# 		# print(f"Angle: {_angle:.0f}, AV: {_avrage_angle:.0f} degrees")
+				
+			# 	else:
+			# 		anglecalc.angle = 0.0
+			# 		print("Angle: N/A")
+
+			# 	_avr_ang_str_0f = (f"{_avrage_angle:.0f}")
+			# 	stam_coordinaten = (x2.__str__() + ";" + y2.__str__() + ";" + _avr_ang_str_0f) # coordinates of the stem point
+			# 	# print(f"Coordinates: {stam_coordinaten}")
+
+			# 	command_sing.append(stam_coordinaten)
+	
+			# else:
+			# 	command_sing_flag = False
+
+			# if not command_sing_flag and len(command_sing) > 5:
+			# 	print(f"Command sing: {command_sing[len(command_sing) -1]}")
+			# 	coordinateQueue.put(command_sing[len(command_sing) -1])
+			# 	command_sing_flag = True
+			# 	command_sing.clear() 
+			
+			if object_area_kop > 15000 and object_area_stam > 1200:
+				if x1 != 0 and y1 != 0 and x2 != 0 and y2 != 0:
+					command_sing_flag = True
+					_angle = anglecalc.get_angle(x1, y1, x2, y2)
+
 					av_angle.append(_angle)
 					if len(av_angle) > 5:
 						av_angle.pop(0)
-					# elif len(av_angle) == 3:
-					_avrage_angle = ( sum(av_angle)) / len(av_angle) # av_angle[0] + av_angle[1] + av_angle[2]
-					# print(f"Angle: {_angle:.0f}, AV: {_avrage_angle:.0f} degrees")
-				
+
+					_avrage_angle = sum(av_angle) / len(av_angle)
+
 				else:
 					anglecalc.angle = 0.0
 					print("Angle: N/A")
 
-				_avr_ang_str_0f = (f"{_avrage_angle:.0f}")
-				stam_coordinaten = (x2.__str__() + ";" + y2.__str__() + ";" + _avr_ang_str_0f) # coordinates of the stem point
-				# print(f"Coordinates: {stam_coordinaten}")
+				_avr_ang_str_0f = f"{_avrage_angle:.0f}"
+				stam_coordinaten = f"{x2};{y2};{_avr_ang_str_0f}"
 
 				command_sing.append(stam_coordinaten)
-	
+				last_command_add_time = time.time()  # track last time something was added
+				last_command_sing_len = len(command_sing)
+
 			else:
 				command_sing_flag = False
 
-			if not command_sing_flag and len(command_sing) > 5:
-				print(f"Command sing: {command_sing[len(command_sing) -1]}")
-				coordinateQueue.put(command_sing[len(command_sing) -1])
-				command_sing_flag = True
-				command_sing.clear() 
-			
+			# Delayed sending after no new additions
+			if not command_sing_flag and len(command_sing) > 2 :
+				time_since_last_add = time.time() - last_command_add_time
+
+				if time_since_last_add >= 1.5:
+					if "319;239" in command_sing[-1]:
+						print(f"Command sing: {command_sing[-2]}")
+						coordinateQueue.put(command_sing[-2])
+					else:
+						print(f"Command sing: {command_sing[-1]}")
+						coordinateQueue.put(command_sing[-1])
+					command_sing_flag = True  # prevent repeat sending
+					print(command_sing)
+					command_sing.clear()
+		
+			# print(command_sing)
+			# print(len(command_sing))
 
 			# Handle key presses
 			key = cv2.waitKey(1)
@@ -418,6 +464,20 @@ with oak.oak_init() as device:
 
 					thresh.create_thresh_buttons('additional')
 					thresh.create_thresh_buttons('main')
+			if key == ord('n'):
+				if not hsv.HSV_ENABLED2:
+					hsv.create_hsv_sliders('additional')
+				if not hsv.HSV_ENABLED:
+					hsv.create_hsv_sliders('main')
+				assemble('main')
+				assemble('additional')
+				destroy('main')
+				destroy('additional')
+				if not contour.CONTOURS_ENABLED:
+					contour.CONTOURS_ENABLED = True
+					contour.create_contour_sliders('main')
+				if not contour.CONTOURS_ENABLED2:
+					contour.CONTOURS_ENABLED2 = True
 			if key == ord('A'):
 				# assemble vision algorithm by adding current operator
 				assemble('main')
